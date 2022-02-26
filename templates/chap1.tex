@@ -4,130 +4,183 @@
 %% You can process specific files by typing their names in at the 
 %% \files=
 %% prompt when you run the file main.tex through LaTeX.
-\chapter{Universal Function Approximators conquer Digital Infinity}
+\chapter{BLiMPs were meant to fly!}
 
-In this chapter, I will address reexamine the conventional definition of a Language Model as it pertains to human Natural Language.  Particularly, I will very briefly discuss the difference between competence and performance, and argue that Language Models are restricted to the performance side of Natural Language (<reference Revolutionary New Ideas...>).  Lastly, I examine NNs, touted as Universal Function Approximators in this context, and whether there exists a function that models human competence that can be approximated exclusively using human performance data..~\ref{ch1:sec}.
+\section{Assessing Knowledge of Language (KoL)}
+\label{section:kol}
 
-\section*{Grasping at straws: LMs and human performance.}
+The success of Neural Language Models at different natural language tasks, such as Next Sentence Prediction (NSP), Machine Translation (MT) and Question Answering (QA), among others\footnote{For a quick collection of more natural language tasks and how different models perform on them, see the \href{https://gluebenchmark.com/leaderboard}{GLUE Leaderboard} or the \href{https://super.gluebenchmark.com/leaderboard}{Super GLUE Leaderboard}.}, has made it a popular endeavor to assess the potential Knowledge of Language encoded in the learned representations of the language models and how that KoL may be contributing to their performance.  If one were to roughly summarize these efforts, one could group these types of analyses into two broad methodological categories: those that treat the language model as a black box and draw conclusions about the system based on thorough input-output analysis, and those that train additional classifiers (\textit{probes}) to use the representations inside the black box in order to accomplish some linguistically meaningful task (\citealp{conneau2018you,elazar2020bert}).
 
-\subsection*{LMs output a probability distribution over sequences of words.}
+The probing approach requires an additional training corpus labeled with the linguistic concepts of interest in order to train and evaluate the probing classifier before drawing any conclusions.  However, because probing relies on training an additional classifier on top of the latent (in other words: opaque and currently poorly understood) representations of neural LMs, it is extremely difficult to control for confounding variables, such as the information being introduced into the system by training the probing classifier in the first place \citep{warstadt2019blimp}.  Additionally, \citet{d2020underspecification} have found substantial evidence indicating that these overparametrized neural LMs by nature exploit different sets of spurious correlations according to their random initialization in spite of exhibiting very similar performance on I.I.D. test sets.  This poses a unique set of difficulties for the use of probes for any assessment of KoL in such LMs. 
 
-Language Models (LMs) are, as the title of this section implies, computational devices that output a probability distribution when given a sequence of words.  How a LM achieves the probability distribution is immaterial to both this discussion and to the engineers that implement LMs to serve a practical purpose (i.e. Google predicting search queries or relevant advertisements).  Let it suffice to say that anything that could potentially improve the performance of a Language Model is fair game, such as taking into account whether it rained the previous Tuesday before making a prediction.  Typically however, LMs are trained on large corpora of natural language data in order to inform their predictions.  One of the most basic classes of such models are N-gram models, which rely on the preceding N words to determine the likelihood of the next word ($w_i$): $$\mathbf{P}(w_i|w_{i-N}, w_{i-(N+1)}, ..., w_{i-1})$$.  More sophisticated methods have since been invented and adopted.  Neural Networks have also been trained to output probabilities over sequences of words with varying objective and loss functions.  The common theme to all current LMs is that they require datasets of utterances of Natural Language in order to arrive at a satisfactory Probabiliy Mass Function (PMF) whose performance when assigning probabilities to discrete sequences of words is within specification.
+To compound the matter, Human KoL, due to its abstract, deliberately acomputational nature, can \textit{only} be assessed via proxies, generally by probing language acquisition or use.  At present, the studies of LMs' KoL that rely on an input-output analysis of a system tend to focus on probing their weak generative capacity: testing whether a given LM can discern whether a particular sequence of words is or is not in the set of sentences generated by some presumed corresponding grammar, typically by comparing the probabilities the LM assigns to different but related sequences of words.
 
-\subsection*{An engineer's perspective of human competence vs. performance.}
+We believe for these reasons that in order to effectively assess KoL for any statistically-based LM, one must develop a test that requires both KoL in the form of a grammar for a language and a mapping that describes the \textit{use} of that grammar.  We take steps to this end by presenting the LI-Adger dataset, a collection of roughly 4200 sentences, each backed by human Magnitude Estimation (ME) data assigning a gradient acceptability value to each sentence.  This thesis also posits the Acceptability Delta Criterion (ADC) as a measure that enforces the gradience of acceptability when evaluating LMs, and it empirically shows how it is a step above the weak generative capacity tested by evaluating set membership.
 
-Before delving into any arguments regarding Language Models, allow me to define the terms and clarify my stance regarding the human competence vs. performance distinction.  The competence vs. performance distinction is one I often relate to Physics: in school, one is taught to calculate the final vertical velocity ($\mathrm{v}_{y,final}$) of a perfectly round object when dropped from a height ($\mathrm{h}$) and having only the acceleration of gravity ($\mathrm{a}=\mathrm{g}\approx9.8\mathrm{m}/\mathrm{s}^2$).  In this setup, two objects of differing mass but dropped from the same height will impact the ground at the exact same time and at the exact same speed.  This fundamental principle is only revealed by the abstractions required to reduce the problem to the equation $$\mathrm{v}_{y,final} = \sqrt{\mathrm{h}*\mathrm{g}}$$.
+\section{BLiMP: The Benchmark of Linguistic \\Minimal Pairs}
+\citet{warstadt2019blimp} have taken seminal steps toward evaluating LMs beyond their weak generative capacity by positing the Benchmark of Linguistic Minimal Pairs for English (BLiMP).  They automatically generated 67 datasets of 1000 minimal pairs each from grammar templates that span 12 linguistic phenomena.  They designed the templates to contrast in grammatical acceptability by isolating specific phenomena in syntax, morphology or semantics.  In doing so, the authors intend to mirror what a working linguist uses to probe KoL in native speakers of a language.  Because such principles generally appeal to grammatical constraints, they go beyond simple weak generative capacity.
+%% Not clear to me why this goes beyond weak generative capacity.  So I put in a sentence about it.
 
-If we studied this problem without abstracting away from wind resistance, accounting for terminal velocity, or calculating the effects of imperfections in the surface of the objects, we might arrive to the conclusion that smaller spheres tend to hit the ground faster than larger ones when dropped from the same height.  Such is also the case with human competence and performance as they pertain to Natural Language.
+Although the concept of using minimal pairs is not new (\citealp{linzen2016assessing,marvin2018targeted,wilcox2018rnn}; to name a few), the creators of BLiMP take the idea to a much larger scale and propose a single metric for evaluation, which we will call the BLiMP Criterion.  For a given minimal pair $m_i$ consisting of an acceptable sentence $s_{i,1}$ and an unacceptable sentence $s_{i,2}$, if a LM evalutes $P(s_{i,1}) > P(s_{i,2})$, then the LM has met the BLiMP Criterion for $m_i$.  The authors of BLiMP thus score a LM on the BLiMP Benchmark according to the percentage of all the minimal pairs for which it was able to fulfill the BLiMP Criterion.  This, of course, can be broken down into further analyses of the 12 linguistic phenomena they sought to represent in the dataset.
 
-Human competence describes our KoL, which leads to our \textit{capability} to generate and understand infinitely long and infinitely nested, well-formed sequences of words.  Human performance is the realization of this capability once we take into account memory constraints, semantic plausibility, noise in the environment, among many other factors, that directly influence our externalization of Natural Language.
+\subsection{Not everything on the BLiMP flies.}
+The BLiMP Criterion is met whenever the acceptable sentence of a minimal pair receives a higher score or probability than its unacceptable counterpart.  This setup has the unfortunate consequence of treating sentence acceptability, a metric well known to be gradient by nature \citep{sprouse2018colorless}, as functionally categorical.  Under the BLiMP criterion, a sentence is either more acceptable or less acceptable than its counterpart, greatly simplifying the task of assigning acceptability judgements for LMs.  This point is underscored by the high performance of the baseline 5-gram model in \citet{warstadt2019blimp}, scoring 61.2\% of the 67,000 minimal pairs correctly under the BLiMP Criterion.  This has the immediate implication that an $N$-gram model, well understood to have little to no Knowledge of Language, suddenly \textit{knows} approximately 60\% of all the phenomena tested in BLiMP.
 
-Human competence is what allows us to recognize a particular sequence of words as well-formed, in proper terms: grammatical.  A sequence of words being grammatical in a particular language is a categorical label describing whether that sequence of words is one that belongs to that language.  A sequence of words being acceptable is a gradient metric that determines whether that sequence of words \textit{makes sense}.  Think: if one were in a conversation and heard that sequence as part of the discourse, would one notice anything \textit{strange}?  If not, then it is an acceptable sequence, and whether or not it was grammatical, it flew under the radar.
+On the subject of the phenomena tested in BLiMP lies the question of whether the authors' selection of phenomena is representative of syntax or linguistics.  They very correctly point out that, because they designed the grammatical templates with an emphasis on controlling for sentence length and lexical parity, their coverage of linguistic phenomena is fundamentally limited.  There is therefore no concrete notion to what achieving 60\% correctness on BLiMP means, as in the case of the 5-gram model, because the KoL being tested is only the subset that can be reasonably generated using a templated approach.  
 
-Continuing the Physics example: How does one observe in a classroom the fact that two objects of equal mass fall at the same rate when dropped from equal height?  There is no (easily accessible) way of observing this without introducing the effects of wind resistance and other confounding variables, and such is also the case of human competence.  It cannot be observed except by probing human test subjects with sentences, which introduces the confounding variables that lead to human performance.  This limitation is the reason much theoretical work has been performed in order to directly relate human acceptability judgements to their presumed underlying grammaticality predictions.
+Templating also brings with it another problem: although the authors validate their data using human judgement data using a Forced Choice (FC) task, automatic generation leads to semantically implausible sentences.  The authors argue that this semantic implausibility should not influence human subjects' judgements because all semantically implausible sentences are pairs of an acceptable and unacceptable sentence that differ along a single feature, which should control for that confound.  However, \citet{sprouse2018colorless} conducted a similar exercise by setting up an acceptability FC experiment wtih Chomsky's canonical \textit{Colorless green ideas sleep furiously} sentence.  They first obtained all 120 possible permutations of the 5 word sequence (henceforth the CGI dataset) and proceeded to generate all possible 7140 unique pairs of sentences from the 120 CGI sentences.  \citet{sprouse2018colorless} ranked each CGI sentence according to the Elo chess rating system by treating each FC trial as a chess match.  They found that, although the canonical sentence is perfectly well-formed, three other sentences were rated as more acceptable, shown along with their acceptability (Elo) ratings in Table \ref{tab:table_1} below.
+\begin{table}[h]
+    \centering
+    \ra{1.3}
+    \begin{tabular}{llc}
+    %\hline
+    \toprule
+    \textbf{Sentence ID} & \textbf{Sentence} & \textbf{Elo score} \\
+    %\hline
+    \midrule
+    cgi.0 & colorless green ideas sleep furiously & 179.9308187 \\
+    %\hline
+    \midrule
+    cgi.11 & colorless ideas furiously sleep green & 180.7792248 \\
+    cgi.24 & green colorless ideas sleep furiously & 220.4766292 \\
+    cgi.25 & green colorless ideas furiously sleep & 187.6557574 \\
+    %\hline
+    \bottomrule
+    \end{tabular}
+    \caption[Four acceptable sentences from the CGI dataset]{Four sentences from the Colorless Green Ideas (CGI) dataset collected by \citet{sprouse2018colorless}.  All 120 permutations of the canonical sentence were paired with each other for a total of 7140 unique pairs.  Each FC trial was treated as a chess match, and then each sentence was given an Elo chess rating according to the number of \textit{matches} it won.}
+    \label{tab:table_1}
+\end{table}
 
-Although the stance I have outlined in this section regarding competence and grammaticality vs. perofmrance and acceptability is relatively uncontroversial in Linguistics, no uncontested way of mapping acceptability judgements to grammaticality has been found.
+Even though in theory the canonical (cgi.0) sentence should have received the highest acceptability rating out of all its other 119 permutations, it was bested by three of its kin.  Although it may be argued (with some squinting) that cgi.24 and cgi.25 are also perfectly well-formed, the case is much harder to make for cgi.11.  Hence semantic implausibility is a very strong confounding factor when eliciting human acceptability judgements even in FC, casting doubt on the reliability of the native speakers' judgements for this class of minimal pairs.
 
-\subsection{Can LMs learn from human performance?}
-When it comes to Language Models, before any explicit mapping can be made between a sentence's grammaticality and acceptability, one needs a way of mapping the probability of that sentence to its acceptability; after all, the sentence (if it is an utterance) is an instance of human performance, not competence.  By extension, any and all training data used to inform Language Models' probabilistic predictions are subject to the same limitation: they reflect human performance, where all the variables have come into play.  Oversimplifying the matter: if LMs are trained on human performance data to produce a probability distribution, what impedes the reverse?  Why would one not be able to turn the probability of a sequence of words into its acceptability score?
+Lastly is the fact that the human judgements of the BLiMP data were collected using a FC task in which the human participants were asked to select the more acceptable sentence of the two in each minimal pair.  Although the FC task is statistically more powerful than the Likert Scale (LS) and Magnitude Estimation (ME) tasks at detecting differences in acceptability, it is ill-suited for quantitative experiments of this nature.  FC tasks only \textit{detect a difference in acceptability}, but do not allow direct comparison of the magnitude of the change in acceptability \citep{schutze}.  Hence, very valuable information is lost: a very large difference in the acceptability of two sentences in a minimal pair merits a different explanation than that of a small difference in acceptability. 
 
-This requires some careful attention to the definition of a LM: a model that outputs a probability distribution over a sequence of words.  Thus, LMs must obey the axioms of probability.  For this particular discussion, I will focus primarily on the second axiom: $$\mathrm{P}(\Omega)=1$$
+By computing human performance on BLiMP based on the number of minimal pairs where the more acceptable sentence of the pair was preferred via the FC task, the authors adopt the paradigm of relying on expert labels as the ground truth in evaluation.  However, the minimal pairs where the human judgements were considered to be incorrect, i.e, where the unacceptable sentence was preferred over the acceptable one under FC, can also be interpreted to mean that, for those minimal pairs in particular, the FC task could not detect an appreciable difference in acceptability.  After all, the linguistic theory the phenomena come from is fundamentally derived from human data, thus it stands to reason that one may adopt the human judgements as the true labels in the paradigm, not the expert-assigned categorical labels.
 
-If we consider that the probability distributions of LMs are informed almost exclusively by the dataset on which it was trained, it is not out of the realm of possibility to consider the collection of sequences of words in the dataset as the universe $\Omega$.  This then brings about the first large problem: any sequence not in $\Omega$ will never occur ($P(x \notin \Omega) = 0$).  A great deal of research has been conducted in order to find sophisticated \textit{smoothing} methods in order to assign nonzero probabilities to sequences of words not found in the original dataset.  This approach has its own limitations, which I will address in a later section.
+\section{Taking the BLiMP to new heights}
 
-Suppose a smoothing approach was discovered that effectively solved the problem of $x \notin \Omega$, then we may move on to the question of how to interpret the probabilities.  Intuitively, it would make sense that more acceptable sentences are more likely than less acceptable ones.  Even if not directly, if a sentence A ($s_\mathrm{A}$) has an acceptability of $\mathrm{Acc}(s_\mathrm{A}) = a_\mathrm{A}$ and a sentence B ($s_\mathrm{B}$) has an acceptability of $\mathrm{Acc}(s_\mathrm{B}) = a_\mathrm{B}$, the implication would take a form similar to the following:
-$$\mathrm{If} a_\mathrm{A} > a_\mathrm{B} \Rightarrow \mathrm{P}(s_\mathrm{A}) > \mathrm{P}(s_\mathrm{B})$$
-Yet this interpretation has dangerous consequences.  Considering that all probabilities are bounded between [0, 1]: this strongly biases the Probability Mass Function toward shorter sequences of words.  Consider the following example of coordination with two simple sentences:
-\begin{itemize}
-    \item $s_{\mathrm{A}}$: John and Mary do not leave the house.
-    \item $s_{\mathrm{B}}$: John and Mary and Bill do not leave the house.
-\end{itemize}
-Both these sentences are perfectly acceptable, yet when calculating their probabilities, invariably $\mathrm{P}(s_\mathrm{A}) > \mathrm{P}(s_\mathrm{B})$ by the mere fact that $s_\mathrm{B}$ will be multiplied by more terms less than 1.  Despite this critical flaw, inequalities between probabilities are often used as a proxy for acceptability, and consequently as a metric to determine whether a language model possesses human-comparable KoL.  Two out of the many examples of this type of experimental setup are Linzen et al. 2016, and Hu et al. 2020.
+In this section, we explain the three major contributions of this thesis.  This thesis first presents the LI-Adger dataset collected by \citet{sprouse2012assessing} and \citet{sprouse2013comparison} of well over 4000 sentences each associated to a human ME result, thereby yielding approximately 2400 minimal pairs with a representative coverage of the field of generative syntax.  To effectively use this dataset, this thesis highlights the importance of interpreting sentence acceptability as a gradient metric and demonstrate how exhibiting such gradience is a prerequisite to attributing any KoL to a LM.  Lastly, this thesis proposes the Acceptability Delta Criterion (ADC) as a proof of concept measurement that begins to enforce the gradience of acceptability in its evaluation of model performance and adopts continuous human judgements as the ground-truth labels that LMs are expected to approximate.
 
+\subsection{The LI-Adger dataset}
+The LI-Adger dataset is a collection of two separate datasets.  The first consists of a randomly selected sample of 150 pairwise phenomena (300 sentence types) from Linguistic Inquiry (LI) 2001-2010 collected by \citet{sprouse2013comparison}.  Each pairwise phenomena includes 8 hand-constructed, lexically matched minimal pairs such that most of the contribution of lexical information to the acceptability of the sentences would be distributed equally to the pair. For the purposes of complete transparency: 144 out of the 150 pairwise phenomena consisted of 8 lexically matched pairs of sentences.  The remaining 6 phenomena consisted of 7 lexically matched pairs and one non-matched pair, because the originally published pair in LI was not lexically matched.
 
-Allow me to draw attention once again to $\mathrm{H}_0$: there exists no nonhuman computational device with human-comparable KoL.  Alternatively, let us assume there exists such a LM.  
+The second set of sentences is an exhaustive selection of 219 sentence types from \citeauthor{adger2003core}'s (\citeyear{adger2003core}) \textit{Core Syntax} textbook (198 directly from the textbook + 21 created as additional controls) that form 105 multi-condition phenomena collected by \citet{sprouse2012assessing}.  Much like the LI dataset, 8 tokens of each sentence type were created by hand such that the structural properties of the condition were maintained but the lexical items varied.  One thing to note is that many of these sentences often have interesting names from Greek mythology in the textbook, but these were changed to common names in order to keep the proper names from biasing the native speakers' judgements of the sentence.  For the purposes of the LI-Adger dataset as a whole, we have split each multi-condition phenomenon into minimal pairs by taking each possible combination of acceptable and unacceptable sentences in the condition as a valid minimal pair.  For example, the multi-condition phenomenon from Chapter 8 (\textit{Functional Categories III}) of the textbook presented in Table \ref{tab:table_2} below would yield the two minimal pairs presented in Table \ref{tab:table_3}:
+\begin{table}[h]
+    \centering
+    \ra{1.3}
+    \begin{tabular}{ll}
+    %\hline
+    \toprule
+    \textbf{Sentence ID} & \textbf{Sentence}  \\
+    %\hline
+    \midrule
+    ch8.150.*.01 & Melissa seems that is happy. \\
+    ch8.151.g.01 & It seems that Melissa is happy. \\
+    ch8.152.g.01 & Melissa seems to be happy. \\
+    %\hline
+    \bottomrule
+    \end{tabular}
+    \caption[Example multi-condition phenomenon from the Adger dataset.]{Example multi-condition phenomenon from the Adger dataset.  Note: the original sentences in the Adger textbook use the name Agamemnon, but was changed to Melissa in order to avoid any potential influence of the unfamiliar name in native speakers' judgements.}
+    \label{tab:table_2}
+\end{table}
 
-\section*{Neural Networks: the perfect Language Models.}
+\begin{table}[h]
+    \centering
+    \ra{1.3}
+    \begin{tabular}{llc}
+    %\hline
+    \toprule
+    \textbf{Acceptable sentence} & \textbf{Unacceptable sentence} \\
+    %\hline
+    \midrule
+    It seems that Melissa is happy. & Melissa seems that is happy.\\
+    Melissa seems to be happy. & Melissa seems that is happy.\\
+    %\hline
+    \bottomrule
+    \end{tabular}
+    \caption[Example multi-condition minimal pairs from the Adger dataset]{Two minimal pairs constructed from a single multi-condition phenomenon from the Adger dataset.  Note: the original sentences in the Adger textbook use the name Agamemnon, but was changed to Melissa in order to avoid any potential influence of the unfamiliar name in native speakers' judgements.}
+    \label{tab:table_3}
+\end{table}
 
-\subsection*{Why NNs are the only LM capable of KoL.}
-%The principal advantage of NLMs is that they are able to more effectively use the content of an entire sequence in order to compute the sequence probabilities.  Where an n-gram model is limited to the preceding n words, the NLM has multiple ways around the problem.  The most straightforward solution is to accept the entire sequence of tokens as input, such as in feed-forward Neural Networks.  A more sophisticated method involves processing each token in the sequence individually, but maintaining a a hidden state representation of the entire history of tokens seen so far, as used in Recursive Neural Networks (RNNs), Long-Short Term Memory networks (LSTMs), among others.  Lastly is what has been named the Masked Language Modeling (MLM) objective, used by Transformer networks.  MLM involves \textit{blocking out} one token in the entire sequence, and using the surrounding tokens to predict the missing token with an associated probability value.  I will only be concerned with bidirectional transformers...
+The Adger dataset, in virtue of being sampled from the \textit{Core Syntax} textbook, which constructs a theory of syntax from the ground up on the basis of examples, can be taken to have reasonably good coverage of the field of syntax.  Add to this coverage the LI dataset, which is sampled from the 111/114 articles published in Linguistic Inquiry about US English syntax from 2001-2010 (out of the total 308 articles published during that time).  Therefore, to the extent that the Adger \textit{Core Syntax} texbook and \textit{LI}2001-2010 are representative of the data in the field, so is the LI-Adger dataset. (\citealp{sprouse2012assessing,sprouse2013comparison}).
 
-Neural Networks are incredibly powerful statistical machines.  Under the assumption of arbitrary depth (infinite number of layers) or arbitrary width (infinite number of units per layer), it is said that NNs can approximate any continuous functions, hence their title of Universal Function Approximators.  Therefore, if there exists a probability distribution that perfectly models human Natural Language, or better yet, exhibits behavior stemming from human-comparable KoL, NNs will be able to find the Probability Mass Function that yields such a distribution.
+\subsection{Human Magnitude Estimation (ME) data}
+Perhaps even more importantly than the coverage of linguistic phenomena represented in the LI-Adger dataset is the human judgement data that comes with it. \citet{sprouse2012assessing} collected Magnitude Estimation and Yes-No judgement data from a total of 440 native participants for the 469 data points they sampled from the Adger \textit{Core Syntax} textbook.  After conducting three different statistical analyses on the data (traditional null hypothesis significance tests, linear mixed-effects models, and Bayes factor analyses), they found that the maximum replication failure rate between formal and informal judgements (i.e. formal vs. informal data collection methods) was 2 percent (\citealp{sprouse2012assessing,schutze}).
 
-With that out of the way, let us define what we would want from the ideal Language model by properly defining the bounds of the probability distribution.
+\citet{sprouse2013comparison} took those analyses even further with their sample of 148 two-sentence phenomena from \textit{LI}2001-2010.  They collected data for the LI sentences using the 7-point Likert Scale (LS) task, ME and FC and vetted it under 5 different statistical analyses (the same three as \citet{sprouse2012assessing} plus Descriptive directionality and two-tailed null hypothesis tests).  They estimated a minimum replication rate for journal data of 95 percent $\pm 5$ (\citealp{sprouse2013comparison,schutze}.  
 
+Finally, \citet{sprouse2017design} sampled 50 pairwise phenomena from LI dataset in a complementary study that determined the statistical power of formal linguistics experiments by task and average effect size and recommend setting the threshold for well-powered experiments at 80\% statistical power.  They find that the FC task would reach the 80\% power threshold and detect 70\% of the phenomena published in \textit{LI}2001-2010 with just ten participants, assuming each provides only one judgement per phenomenon. With fifteen participants, FC would detect 80\% of the phenomena.  Because the ME task has less statistical power than FC, it requires at least thirty to thirty-five participants to reach the same 80\% coverage of \textit{LI}2001-2010 as FC (\citealp{sprouse2017design,schutze}.  Because 20 is the sample size of the human FC data in BLiMP, and the sample sizes for the LI-Adger datsets are much larger (104 participants per condition for the LI sentences and 40 for the Adger sentences), we do not forfeit any statistical power by using ME data in spite of the higher statistical power of the FC task.  On the contrary, the ME task will allow us not only to perform the same type of functionally categorical acceptability comparison as the BLiMP Criterion, but also allow us to make comparisons between every condition in the dataset.
 
+Taken together, the LI-Adger dataset is a representative collection of linguistic phenomena that have been validated multiple times over by human judgement data across ME, FC, LS and Yes-No tasks.  The human ME data we include as part of the LI-Adger dataset is therefore reliable, replicable and statistically powerful.  The LI-Adger dataset has the added benefit of being theory-agnostic; if linguistic theories were to fundamentally change in the future, the significance and validity of the data would remain unchanged.
 
+\subsection{The Acceptability Delta Criterion (ADC)}
+\label{section:acceptability_delta_criterion}
 
+Thanks to the ME data associated with each sentence in the LI-Adger dataset, we can now make direct acceptability comparisons, not just between the two sentences of a minimal pair, but also across minimal pairs and even across phenomena.  It is crucial to be able to make such direct comparisons due to the gradient nature of acceptability.  Acceptability judgement experiments carry as a necessary underlying assumption that acceptability is a \textit{percept} that arises in response to linguistic stimuli.  Collecting data about the percept requires then that the subject report that perception of acceptability (\citealp{chomsky1965aspects,t2016empirical,sprousealmeida2013,schutze}).  Consequently, acceptability judgements are a behavioral response that may vary in intensity, much like brightness, loudness, temperature, pain, etc.  The degree of this response is inherently informative, in particular because acceptability is the behavioral output of the grammatical system, to which neither speakers nor linguists have direct access.
 
-Phasellus sed elit vehicula, gravida odio in, vulputate quam. Quisque in elit enim. Vivamus finibus justo elit, sed semper turpis aliquam porttitor. Nulla posuere bibendum nunc sit amet consequat. Vivamus commodo lorem sed metus fermentum rhoncus. Etiam porta sodales purus, vel aliquet lacus facilisis et. Etiam ornare velit non dui auctor fermentum. In elit augue, fringilla at lacinia at, facilisis sit amet lectus. Sed et hendrerit ex. Morbi tristique felis a augue egestas commodo. Nulla porttitor ut urna nec dignissim. Fusce ac pharetra risus, id rhoncus ligula. Pellentesque euismod viverra sem, vel porttitor libero blandit quis. Phasellus orci augue, mattis nec dolor ut, cursus mattis quam. Sed tincidunt eu metus sed pulvinar. Ut a nulla at leo semper accumsan efficitur eget leo.
+In order to illustrate the informativeness of adopting gradient acceptability judgements and of being able to make direct comparisons across minimal pairs with the ME data, take as an example the following two minimal pairs:
+\begin{table}[h]
+    \centering
+    \ra{1.3}
+    %\begin{tabular}{|l|l|c|}
+    \begin{tabular}{llc}
+    \toprule
+    %\hline
+    \textbf{Sentence ID} & \textbf{Sentence} & \textbf{ME zscore} \\
+    %\hline
+    \midrule
+    32.3.Culicover.7a.g.01 & John tried to win. & 1.453262 \\
+    32.3.Culicover.7b.*.01 & John tried himself to win. & -0.86729 \\
+    33.2.bowers.7b.g.07 & Sarah counted the change accurately. & 1.230412 \\
+    33.2.bowers.7b.*.07 & Sarah accurately counted the change. & 1.20698 \\
+    %\hline
+    \bottomrule
+    \end{tabular}
+    \caption[Two minimal pairs for the Linguistic Inquiry (LI) dataset]{Two minimal pairs for the Linguistic Inquiry (LI) dataset collected by Sprouse \& Almeida, 2012.  The ME zscore is the averaged zscore transformation of the Magnitude Estimation results across 104 different experimental participants.}
+    \label{tab:table_4}
+\end{table}
 
-Sed vel lectus ut dui tempor molestie. Suspendisse blandit sapien posuere quam tempor lobortis. Duis sollicitudin tincidunt dui, at aliquam lorem dictum sit amet. Aenean congue nibh lectus, ut faucibus turpis facilisis quis. Ut aliquet magna at placerat ultricies. Mauris convallis, risus efficitur gravida dapibus, lacus lorem malesuada ligula, eget porta diam felis non turpis. Nulla sed sem finibus, vehicula quam at, vulputate tellus\footnote{Here is a sample footnote referencing figures~\ref{arm:fig1}
-and~\ref{arm:fig2}.}  
+It is clear that the difference in acceptability across the Culicover minimal pair is vastly different from the difference across the Bowers minimal pair in Table \ref{tab:table_4}.  In fact, the average ME rating for the expert-labeled unacceptable Bowers sentence (33.2.bowers.7b.*.07) is much higher than many other sentences in the data that are expert-labeled as \textit{acceptable}, meaning the 104 participants that were asked to rate this sentence found it \textit{statistically} completely acceptable.  This type of information is absolutely crucial when evaluating whether a LM has knowledge of any particular linguistic phenomenon, yet this information is lost when analysing performance according to the BLiMP criterion.
 
-Quisque elit enim, molestie ac metus ut, condimentum convallis nibh:
+To this end, we propose the Acceptability Delta Criterion (ADC).  It is founded on the principle that, if we are to ascribe any inferred knowledge of one black box (the Human Language Faculty) to another black box (Neural Language Models) based solely on an input-output analysis of both systems, then the response of both systems must agree both categorically and in magnitude.  In other words, for a minimal pair such as the Culicover pair in Table \ref{tab:table_4} whose change in human acceptability rating is nearly night and day, a language model with comparable KoL will output a similarly drastic change in acceptability rating across the same minimal pair.
 
-\subsection{Subsection sample}
+To make this more concrete: Suppose we have a language model $L$ with output function $f$ that takes in a sequence of words $x_i$ and outputs a score $y_i$. The first step in the ADC is to understand the range of values output by the language model $L$ over the 4179 LI-Adger sentences: $Y = [y_1, y_2, ..., y_{4179}]$.  With the full range of value, we apply a z-score transformation to each of the values in $Y$ by subtracting the mean of $Y$ from each of the values and then dividing them by the standard deviation of $Y$.  This will yield the set z-score transformed predictions $Z = [z_1, z_2, ..., z_{4179}]$.  Notice that because this is a purely linear transformation, it preserves the relationships between the data points.  In addition, the resulting set of predictions $Z$ represents a standardized form of $Y$, where each prediction $z_i$ is expressed in standard deviation units of $y_i$ from the mean of $Y$ \citep{schutze}.  
 
-In tempus ex nibh, non eleifend risus iaculis ac. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nullam in nisi eu arcu laoreet sollicitudin. Mauris consectetur venenatis arcu id finibus. Aenean pellentesque consectetur erat lacinia vulputate. Praesent tempus tempus lorem at dignissim. Proin at odio vitae tortor sollicitudin pretium. Quisque ac purus eu sem rutrum bibendum.
+One may argue that even though the human ME data and the scores output by the LM, because the scales are by nature fundamentally different, cannot be compared even when expressed in standard deviation units.  Let us assume for a moment that what we obtain from the LM is a probability distribution over the sequence of words (as per the canonical definition of a LM).  That means that whatever is output by the LM is bounded in the range [0, 1], yet we typically work with log probabilities in this context, so the range of possible values becomes $(-\infty, 0]$ assuming there is some smoothing in place such that we do not attempt to calculate the logarithm of 0.  Strictly speaking, the range of log probabilities is upper- and lower-bounded, but in practice it is mostly upper-bounded. Turning to ME data, the participant is asked to use a reference sentence as a unit of measurement to estimate how acceptable the target sentence is.  For example, given a reference sentence $a$ and a target sentence $b$, the participant must give an estimate of how acceptable $b$ is by using $a$ as a unit of measurement.  I.e. \textit{$b$ is four times more acceptable than $a$}, or \textit{$b$ is half as acceptable as $a$}. This means that the scale is theoretically lower-bounded by 0 (which could be argued to be absolute unacceptability), but open-ended and infinite on the upper range of the scale.  In practice, participants seem to use the ME task as a Likert Scale with more response options.  Both original units of measurement then (ME and log probabilities) are scales bounded on one end and open on the other end.  Converting both to standard deviation units converts them to an unbounded scale, which Sch\"utze and Sprouse argue not to be an issue even for LS measurements, which are both discrete and bounded at both ends of the scale (\citealp{sprouse2011test,schutze}).
 
-% This is an example of how you would use tgrind to include an example
-% of source code; it is commented out in this template since the code
-% example file does not exist. To use it, you need to remove the '%' on the
-% beginning of the line, and insert your own information in the call.
-%
-%\tagrind[htbp]{code/pmn.s.tex}{Code sample}{opt:pmn}
+Now that we have grounds for making the comparison and a value for how acceptable the model $L$ finds a sequence of words $x_i$ in terms of standard deviation units $z_i$, we can begin to compare the degree of this acceptability response to the human judgement data, also expressed in standard deviation units.  For a given minimal pair $m_i$ consisting of an acceptable sentence $s_{i,1}$ and an unacceptable sentence $s_{i,2}$, we will have 4 pieces of information: two human Z-score transformed acceptability judgements $h_{i,1}$ and $h_{i,2}$, and two language model scores $z_{i,1}$ and $z_{i,2}$.  We turn these into two concrete points of comparison: a human acceptability delta $\Delta h_{i} = h_{i,1} - h_{i,2}$ and a language model acceptability delta $\Delta lm_i = z_{i,1} - z_{i,2}$.  In this new formulation, no information has been lost.  Recall that the BLiMP Criterion is met for the minimal pair $m_i$ when the language model scores the acceptable sentence higher than the unacceptable one, i.e. $\Delta lm_i > 0$.
 
-Pellentesque ac leo eget lorem vulputate mattis eu a nisl. Duis elit erat, consectetur vulputate ullamcorper a, finibus quis turpis. Vivamus tincidunt dui id purus bibendum malesuada. Fusce accumsan, ipsum quis feugiat sodales, enim est aliquet leo, ut ornare justo mauris quis ex. Sed eros magna, suscipit et blandit non, pretium id felis. Praesent a vehicula tortor. Donec blandit dolor a ipsum sodales, eget aliquet nisl fermentum.
+With the fully defined delta values as well as a reformulated BLiMP Criterion in terms of the delta values, we may finally proceed to define the ADC.  Let $\delta$ be a scalar value indicating the number of maximum allowed units of deviation between the human judgement delta $\Delta h_i$ and the language model delta $\Delta lm_i$.  Using this $\delta$ value, we consider the ADC to be met for the minimal pair $m_i$ when the following two conditions are met:
 
-\subsection{Subsection with list}
+\begin{equation}
+    \mathrm{sign}(\Delta h_i) = \mathrm{sign}(\Delta lm_i)
+    \label{eqn:acceptability_delta_criterion_a}
+\end{equation}
+\begin{equation}
+    |\Delta h_i - \Delta lm_i| < \delta
+    \label{eqn:acceptability_delta_criterion_b}
+\end{equation}
 
-Ut sollicitudin, lectus eget posuere porttitor, risus dui facilisis risus, a pharetra lacus elit vel eros. Proin fermentum accumsan mauris, quis posuere nisi pharetra scelerisque. 
-\begin{enumerate}
-  \item Item 1.
-  \item Item 2.
-  \item Item 3.
-\end{enumerate}
+The $\delta$ parameter in Equation \ref{eqn:acceptability_delta_criterion_b} can be adjusted to allow for larger or smaller amounts of deviation between the human and LM acceptability deltas.  If $\delta$ is set to a large number, the ADC functionally becomes the BLiMP Criterion because it is dominated by Equation \ref{eqn:acceptability_delta_criterion_a}.  The main difference would be that, instead of comparing the expert labels to the LM's output, the human judgements would become the ground truth.  For example, if $\delta$ is set to a very large number, and the human ME data find the expert-labeled \textit{unacceptable} sentence as more acceptable than the expert-labeled \textit{acceptable} counterpart, then the LM is expected to follow the same monotonicity.
 
-Cras nec ullamcorper mauris. Aliquam erat volutpat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Suspendisse sed dui ac mi auctor scelerisque. Etiam at semper nisi. Cras nec dolor ac purus feugiat auctor. Nunc eget pulvinar massa.
+As an example of the ADC in action, consider the minimal pairs from Table \ref{tab:table_4}, expressed in Table \ref{tab:table_5} in terms of the Sentence ID of the grammatical sentence.  We show the acceptability delta values for the log probabilities of a simple trigram model trained on the British National Corpus (Sprouse et al. 2018), as well as the human acceptability deltas. We also include two columns indicating whether the BLiMP Criterion (BC) or Acceptability Delta Criterion (ADC) was met.
+\begin{table}[h]
+    \centering
+    \ra{1.3}
+    %\begin{tabular}{|l|c|c|c|c|}
+    \begin{tabular}{lcccc}
+    \toprule
+    %\hline
+    \textbf{Sentence(g) ID} & \textbf{$\Delta h_i$} & \textbf{$\Delta lm_i$} & \textbf{BC met?} & \textbf{ADC met? ($\delta = 1$)}\\
+    %\hline
+    \midrule
+    32.3.Culicover.7a.g.01 & 2.320552 & 0.633896671 & Yes & No \\
+    33.2.bowers.7b.g.07 & 0.023432 & -0.158799029 & No & No\\
+    %\hline
+    \bottomrule
+    \end{tabular}
+    \caption[Example of the Acceptability Delta Criterion (ADC)]{The two minimal pairs from Table \ref{tab:table_4} with acceptability delta values from the human judgements and log probability scores from a trigram trained by \citet{sprouse2018colorless} on the British National Corpus (BNC).  The last two columns show whether the BLiMP Criterion (BC) or the Acceptability Delta Criterion (ADC) was met.}
+    \label{tab:table_5}
+\end{table}
 
-% This is an example of how you would use tgrind to include an example
-% of source code; it is commented out in this template since the code
-% example file does not exist.  To use it, you need to remove the '%' on the
-% beginning of the line, and insert your own information in the call.
-%
-%\tgrind[htbp]{code/be.s.tex}{Block Exponent}{opt:be}
-
-\section{Section sample 3}
-
-Quisque sed ultrices leo. Donec vestibulum auctor nibh, at faucibus libero mollis in. Quisque massa lorem, feugiat a lectus in, lobortis volutpat lectus. Donec accumsan dui erat, eu tempor tortor facilisis sed. Nulla ullamcorper augue et sapien dapibus, quis bibendum velit porta. Nullam mattis vehicula tortor porttitor porta. Interdum et malesuada fames ac ante ipsum primis in faucibus. Praesent suscipit, lorem vel viverra rhoncus, turpis orci dignissim dui, bibendum pulvinar justo sem vel lorem. Nam porttitor mollis tristique. Aliquam rhoncus magna quis nisl varius mattis. Sed rhoncus, diam in gravida iaculis, mauris tellus imperdiet turpis, at porttitor est leo vel velit. Praesent faucibus ornare sodales. Sed eu lorem purus.  
-
-\subsection{Another subsection sample}
-
-Nullam rhoncus posuere lacus, id volutpat nisi pulvinar viverra. Quisque quis ultricies ante. Duis sollicitudin sapien nec consequat vehicula. Vestibulum convallis erat in arcu aliquam eleifend. Nunc scelerisque lorem non luctus sodales. Curabitur eleifend odio et sagittis semper. Praesent sodales, diam nec vulputate iaculis, neque leo consectetur nunc, a luctus lacus purus et dui. Sed sit amet tortor ullamcorper, malesuada libero quis, imperdiet tortor. Cras tempor blandit massa, sit amet molestie sapien tincidunt quis. Nullam hendrerit venenatis massa, sed lacinia ligula tincidunt vitae.
-
-Nam efficitur et lacus sed eleifend. Aenean quis ipsum eget leo ultrices ornare. Nullam rhoncus ante odio, at dignissim neque posuere eu. Pellentesque sodales tortor est, nec egestas sapien mollis quis. In lectus sapien, pellentesque congue erat consequat, hendrerit aliquet elit. Pellentesque eleifend purus ac diam bibendum, ac auctor ipsum posuere. Cras suscipit leo nec velit fermentum, id varius erat eleifend. Proin sagittis purus id ante lacinia, et congue eros tincidunt. Pellentesque at cursus tellus. Quisque id semper nunc. Quisque viverra a ex at ullamcorper. Morbi mollis erat at ex viverra fringilla. Proin ante dolor, dignissim sodales nisl ac, finibus egestas urna.
-
-Nulla porta urna at pulvinar consectetur. Pellentesque suscipit, neque vitae ultricies rutrum, eros tellus iaculis dui, nec pulvinar justo nibh eu urna. Ut euismod massa nisi, et bibendum risus placerat quis. Integer pretium nulla id risus lobortis laoreet. Aenean quis quam fringilla, elementum odio non, lacinia purus. Vestibulum dui sapien, mollis sit amet massa vel, egestas faucibus velit. Phasellus non justo ut ante vestibulum dictum. Nam in nibh et libero malesuada aliquet. Donec in ex in magna luctus volutpat.
-
-Sed quis dapibus libero. Curabitur id finibus nulla, sed semper felis. Proin dapibus nulla interdum, bibendum tortor et, blandit sapien. Etiam pretium tristique tortor non lacinia. Aliquam dapibus turpis lorem, sit amet porta ex dignissim vitae. In neque felis, sagittis sed ullamcorper lacinia, lobortis ut turpis. Nam quis aliquet justo. Nam eros mi, aliquam vel massa ac, ornare dignissim erat.  This is done by using some combination of
-\begin{eqnarray*}
-a_i & = & a_j + a_k \\
-a_i & = & 2a_j + a_k \\
-a_i & = & 4a_j + a_k \\
-a_i & = & 8a_j + a_k \\
-a_i & = & a_j - a_k \\
-a_i & = & a_j \ll m \mbox{shift}
-\end{eqnarray*}
-instead of the multiplication.  For example, you could use:
-\begin{eqnarray*}
-r & = & 4s + s\\
-r & = & r + r
-\end{eqnarray*}
-Or by xx:
-\begin{eqnarray*}
-t & = & 2s + s \\
-r & = & 2t + s \\
-r & = & 8r + t
-\end{eqnarray*}
-Cras pharetra ligula nec lectus bibendum, euismod mattis purus cursus. Nullam ut mi molestie purus ultricies lacinia. Phasellus sed orci ac lacus convallis vestibulum. Quisque id nulla ut ipsum finibus vehicula. Curabitur scelerisque erat lobortis, dapibus purus eget, faucibus sapien. Nam enim leo, faucibus id ante sed, fringilla luctus eros. Morbi vulputate, purus at commodo aliquet, turpis dolor sollicitudin libero, id vehicula risus dui sit amet nulla. Sed auctor efficitur urna. Praesent sagittis tellus ac velit vestibulum dignissim. Vivamus justo enim, pellentesque eu posuere id, mattis vitae felis. Aliquam id tincidunt diam. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+Although we maintain the ADC is posited here as a proof of concept, we hope that its simplicity appeals to the intuition that a LM's acceptability judgements must track those of native speakers both in absolute terms (categorically) and in magnitude of the response if any KoL is to be claimed.  For this reason, this thesis withholds from determining a final value of $\delta$, as it is both the subject of ongoing work and will likely be the topic of debate. Instead, this thesis adopts a first and second approximation of $\delta = 0.5$ and $\delta = 1$ for the case studies used to study the results of the Acceptability Delta Criterion. %Instead, we adopt a first and second approximation of $\delta = 0.5$ and $\delta = 1$ for the case studies in the remainder of this thesis where we study the results of the Acceptability Delta Criterion.

@@ -1,97 +1,38 @@
-%% This is an example first chapter.  You should put chapter/appendix that you
-%% write into a separate file, and add a line \include{yourfilename} to
-%% main.tex, where `yourfilename.tex' is the name of the chapter/appendix file.
-%% You can process specific files by typing their names in at the 
-%% \files=
-%% prompt when you run the file main.tex through LaTeX.
 \chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
 
-If I may start a thesis document with an anecdote, you will understand the how and why I chose the topic that I did.
+Assessing the Knowledge of Language (KoL) of statistically-based Language Models (LMs) generally involves assuming some fundamental property or computation occurring in the Human Language Faculty and arguing that a currently poorly understood, statistical, and typically connectionist model, also partakes in the use of that property or computation.  This quickly becomes a problematic task because understanding the Human Language Faculty has been conventionally posed as a problem to be solved at a causal level removed from the algorithmic and computational implementation levels.  Put in more abstract terms, assessing the KoL of a LM requires inferring some abstract operation inside a human black box based on input-output analysis and determining whether a second, statistical black box is somehow also performing the same operation by some other means.  
 
-If there was a single common factor across my five and a half years of study at the Massachusetts Institute of Technology, it is that Artificial Neural Networks (henceforth referred to as NNs) are the panacea to all our problems, be it in Artificial Intelligence or otherwise.  This is, of course, the idea the overwhelming majority of my courses within the Electrical Engineering and Computer Science department impressed upon me.  I do not believe it far fetched to say that although one may not explicitly say such a thing in the syllabus, the end result is the communication of the same idea: NNs are the panacea.
+The issue is made even more challenging by changes in either field that consequently change our assumptions surrounding the Human Language Faculty or the black boxes used in Machine Learning (ML). This, in turn, immediately impacts claims relating the two by some abstract property, linguistic or otherwise, that is required for the evaluation of LMs.  If any concrete progress is to be made when it pertains to KoL in LMs, then the design of the tests we perform and their conclusions must be based on the same empirical data from current input-output analyses of the Human Language Faculty that has subsequently been used to build the linguistic theories that attempt to characterize and explain Human KoL.  
 
-In this thesis, I demonstrate my mastery of NNs by arguing the contrary: it is not a matter of time until someone solves all the great computational challenges of the century with a Neural Network.  The reason a Neural Network has not developed the same language competence as we humans is not that they are currently not big enough, it is that they constitute an effort akin to barking up the wrong tree.
+This thesis takes concrete steps toward designing such a test of KoL for LMs by positing the necessary components required to build upon the same bedrock of empirical data as the field of generative grammar in Linguistics.  First, we propose the LI-Adger dataset, a collection of statistically powerful and attested linguistic phenomena representative of the field of Linguistics (\citealt{sprouse2012assessing,sprouse2013comparison}), accompanied by human acceptability judgements in the form of Magnitude Estimation (ME) data.  Altogether, the dataset has an attested maximum False Positive (Type 1 error) rate between 1-12\% and is well above the 80\% threshold for statistical power (<20\% False Negatives, or Type 2 errors) \citep{sprouse2017design}.  The reliability of the LI-Adger dataset is such that, if the linguistic theories were somehow proven to be incorrect and reformulated, it would not be because of the data, but because of incorrect theorizing; any tractable theory of linguistics must account for the empirical phenomena observed in the LI-Adger dataset \citep{sprouse2012assessing}.  To complement this data, we propose the Acceptability Delta Criterion (ADC), a proof of concept metric that enforces the gradience of acceptability in its evaluation of model performance, and adopts the continuous human judgements as the ground-truth labels that LMs must approximate in order to demonstrate KoL.
 
-Enough with the inflammatory claims, on to the thesis itself.
+Our results suggest that, when acceptability is treated as a functionally categorical metric on isolated minimal pairs of sentences as it has been traditionally treated in the literature (\citealp{linzen2016assessing,marvin2018targeted,wilcox2018rnn,warstadt2020can}; among others), the task of determining sentence acceptability fails to properly test for KoL.  Under this relaxed metric, the large, cased version of Bidirectional Encoder Representations from Transformers (BERT$_{\mathrm{large-cased}}$; \citealp{devlin2018bert}) when fine-tuned using the Corpus of Linguistic Acceptability (CoLA; \citealp{warstadt2019neural}) (the model is henceforth referred to as BERT$_\mathrm{CoLA_{large-cased}}$), correctly evaluates 2213 out of 2365 ($\sim$94\%) minimal pairs in the LI-Adger dataset; that is, for those 2213 minimal pairs, BERT$_\mathrm{CoLA_{large-cased}}$ gives a higher score to the sentence in the minimal pair deemed by experts to be the \textit{acceptable} one of the pair.  We will continue to refer to this metric as the BLiMP Criterion, named after the BLiMP dataset \citep{warstadt2019blimp}.  To put the performance of BERT$_\mathrm{CoLA_{large-cased}}$) into perspective, a trigram model using the Syntactic Log-Odds Ratio (SLOR; \citealp{pauls2012large,lau2017grammaticality}) is able to correctly evaluate 1781 out of 2365 ($\sim$75\%) minimal pairs.  Considering the coverage of phenomena in the LI-Adger dataset, we may interpret these results in one of two ways: either metrics such as the BLiMP Criterion lead to statistically underpowered tests with a high rate of false positives, or a basic trigram model using SLOR encodes the KoL necessary to account for 75\% of the phenomena in Linguistics.  We opt for the first interpretation and consider this evidence of a theoretical flaw in the metric itself, not a demonstration of what the models \textit{know} about language.
 
-\section{Language Models}
- 
+Adopting the ADC (with $\delta=0.5$), which enforces that LMs' predictions be within a set number of standard deviation units ($\delta$) from the human ME judgements, quickly changes the panorama.  BERT$_\mathrm{CoLA_{large-cased}}$ only correctly evaluates 726 out of 2365 ($\sim$31\%) minimal pairs, whereas the trigram model with SLOR correctly evaluates 712 out of 2365 ($\sim$30\%).  These results imply that, when it comes to tracking the acceptability of sentences across minimal pairs, the KoL encoded in BERT does not go much farther than that of an $N$-gram model.
 
-\section{Tentative}
-By the end of this thesis, you will understand the importance of $\mathrm{H}_0$ and why this should be the starting assumption of any and all linguistics experiments with Language Models.  Secondly, you will have seen strong evidence in favor of $\mathrm{H}_0$, and will know the importance of using well attested and validated human judgement data as the gold standard by which all Language Models should be measured.  Lastly, you will understand the limitations of Neural Language Models, and the necessary compromises in performance and accuracy that need to be made in order to apply them to any Natural Language task.
 
-In addition to the aforementioned contributions, my hope in writing this thesis document is to spur a change in our approach to Natural Language Processing and Computational Linguistics: a stricter adherence to the scientific method as we move away from a behaviorist or empiricist theory of language and computation.
+Here we proceed as follows. First, we attempt to replicate the linguistic analysis of BERT conducted by \citet{warstadt2020can} using the grammatically annotated Corpus of Linguistic Acceptability.  Over the course of this replication, we confirm evidence of underspecification in overparametrized Neural LMs as identified by \citet{d2020underspecification,mccoy2019berts}, among others.  In particular, we observe predictions on the LI-Adger sentences from BERT$_\mathrm{CoLA_{base-uncased}}$, the smallest (i.e. least overparametrized) of the original BERT$_\mathrm{CoLA}$ models, is extremely sensitive to the {\em order} in which the CoLA training sentences are presented, even though overall performance remained relatively unchanged.  We observe this behavior even within the same initialization of the model, where the only difference between two runs is the random seed used to shuffle the training data.  This underspecification takes the form of instability in the LI-Adger test set predictions: sentences predicted as acceptable (1) by BERT with around 90-99\% \textit{confidence} flip to be predicted as unacceptable with a similar magnitude, or vice versa.  We find that over the course of 200 different training orders, 1272 sentences, or roughly 30\% of the sentences in the LI-Adger dataset exhibit this flipping behavior.  We affectionately name this subset of sentences the Acrobatic Sentences.
 
-\section{Section sample 2}\label{ch1:sec}
+Given the alarmingly high proportion of acrobatic sentences produced by the predictions from BERT$_\mathrm{CoLA_{base-uncased}}$, we find ourselves obliged to consider successful replication as achieving Matthew's Correlation Coefficient (MCC) scores on the CoLA test set that are \textit{reasonably} close to those reported by \citet{warstadt2019blimp}.  To this end, we select the BERT$_\mathrm{CoLA}$ models with the single best performance on the CoLA out-of-domain test set and further test them using the LI-Adger dataset under the BLiMP Criterion.  Although we find that the BERT$_\mathrm{CoLA}$ models satisfy the BLiMP criterion for roughly 94\% of the minimal pairs, the magnitudes of their predictions do not track the degrees of acceptability exhibited by the gradient human judgements.  
 
-Phasellus sed elit vehicula, gravida odio in, vulputate quam. Quisque in elit enim. Vivamus finibus justo elit, sed semper turpis aliquam porttitor. Nulla posuere bibendum nunc sit amet consequat. Vivamus commodo lorem sed metus fermentum rhoncus. Etiam porta sodales purus, vel aliquet lacus facilisis et. Etiam ornare velit non dui auctor fermentum. In elit augue, fringilla at lacinia at, facilisis sit amet lectus. Sed et hendrerit ex. Morbi tristique felis a augue egestas commodo. Nulla porttitor ut urna nec dignissim. Fusce ac pharetra risus, id rhoncus ligula. Pellentesque euismod viverra sem, vel porttitor libero blandit quis. Phasellus orci augue, mattis nec dolor ut, cursus mattis quam. Sed tincidunt eu metus sed pulvinar. Ut a nulla at leo semper accumsan efficitur eget leo.
+When benchmarking BERT$_\mathrm{CoLA}$ models using the BLiMP criterion, the output of the models is determined by multiplying the final hidden vector ($\vec{h}\in \mathbf{R}^d$) by a weight matrix $W\in \mathbf{R}^{2\mathrm{x}d}$ learned during the fine-tuning phase and taking the softmax of the product, written explicitly in Equation \ref{eqn:softmax}.
+\begin{equation}
+    \mathrm{softmax}(\vec{x}) = \frac{e^{x_i}}{\sum_{j=0}^{j=K}e^{x_j}}
+    \label{eqn:softmax}
+\end{equation}
+The final output of the BERT$_\mathrm{CoLA}$ models ($out$) is then computed by taking argmax of the two-dimensional vector resulting from the softmax, as expressed in Equation \ref{eqn:argmax_softmax}, thus yielding the final categorical 1/0 prediction.
+\begin{equation}
+    out = \argmax\bigg[\mathrm{softmax}(Wh)\bigg]
+    \label{eqn:argmax_softmax}
+\end{equation}
+However, in order to improve the BERT$_\mathrm{CoLA}$ models' performance apriori before applying the ADC, we adopt the labels $\pm1$ instead of 1/0 and scale the predicted labels by the output of the final softmax classification head in Equation \ref{eqn:softmax}.  Now we have an approximate method of knowing when the BERT$_\mathrm{CoLA}$ models consider a sentence completely acceptable ($\sim$0.95), completely unacceptable ($\sim$ -0.95), and anything in between.  We confirm we do not lose any information because the categorical labels are recovered by taking the sign of the new output.  The delta in the BERT$_\mathrm{CoLA_{large-cased}}$ model's acceptability scores across minimal pairs using this more gradient output metric only weakly correlates with the human judgements ($\sim$0.349, $p$<0.0001).  For reference, conducting the same analysis with the SLOR scores of a trigram model trained on the British National Corpus \citep{sprouse2018colorless} yields almost the same Pearson's correlation coefficient ($\sim$0.333, $p$<0.0001).
 
-Sed vel lectus ut dui tempor molestie. Suspendisse blandit sapien posuere quam tempor lobortis. Duis sollicitudin tincidunt dui, at aliquam lorem dictum sit amet. Aenean congue nibh lectus, ut faucibus turpis facilisis quis. Ut aliquet magna at placerat ultricies. Mauris convallis, risus efficitur gravida dapibus, lacus lorem malesuada ligula, eget porta diam felis non turpis. Nulla sed sem finibus, vehicula quam at, vulputate tellus\footnote{Here is a sample footnote referencing figures~\ref{arm:fig1}
-and~\ref{arm:fig2}.}  
+The above analyses by nature warrant further controls.  For one, we are uncertain of what information--semantic, syntactic or otherwise--might be introduced into the BERT models by the CoLA training set itself, as opposed to already being present in their pretrained representations.  Additionally, training a linear classifier on top of the BERT models' embeddings very rarely yields a softmax output of less than 0.95, meaning most predictions were around either 0.99 or -0.99.  In spite of BERT's claimed KoL, expecting gradience from the resulting BERT$_\mathrm{CoLA}$ after fine-tuning using the categorical labels could be viewed as unfair to the model due to its lack of access to gradient data.  We believe this is a fair expectation because we do not have access to categorically labeled raw linguistic input during language acquisition, and we are ultimately probing the LMs for Human KoL.  Regardless, we repeat the analyses on the out-of-the-box version of BERT (BERT$_\mathrm{MLM}$).  We obtain \textit{pseudo-log-likelihood} (PLL) scores from BERT$_\mathrm{MLM}$ by performing a variant of a Cloze test in which we sequentially mask each word in a given sentence and retrieve the probability of the originally masked token as predicted by BERT$_\mathrm{MLM}$ (\citealp{wang2019bert,shin2019effective,salazar2020} ).\footnote{We are fully aware that Jacob Devlin himself has said that BERT is not a language model and recommended against this sequential masked language modeling procedure (See the \href{https://github.com/google-research/bert/issues/35}{original issue on the Google Research GitHub repository}).  We point readers to \citet{salazar2020}, who report BERT$_\mathrm{MLM}$ beats the state-of-the-art GPT-2 on BLiMP \citep{warstadt2019blimp} when using PLL scores.}  In this task, the total PLL of a sentence $s_i$ of length $n$ is the sum total of the log-likelihood score of each of its tokens $[w_0,...,w_n]$, which can be expressed as:
+\begin{equation}
+    \mathrm{PPL(s_i)} = \sum^{n}_{j=0} \mathrm{log}(P(w_j|w_0,...,w_{j-1},w_{j+1},...w_n))
+    \label{eqn:pseudo_log_likelihood}
+\end{equation}
+We find that this objective only slightly improves performance under the ADC: scoring 890 out of 2365 ($\sim$38\%) minimal pairs with $\delta = 0.5$, as well as slightly improving the correlation with the human judgement deltas across minimal pairs ($\sim$0.384, $p$<0.0001).  
 
-Quisque elit enim, molestie ac metus ut, condimentum convallis nibh:
-
-\subsection{Subsection sample}
-
-In tempus ex nibh, non eleifend risus iaculis ac. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nullam in nisi eu arcu laoreet sollicitudin. Mauris consectetur venenatis arcu id finibus. Aenean pellentesque consectetur erat lacinia vulputate. Praesent tempus tempus lorem at dignissim. Proin at odio vitae tortor sollicitudin pretium. Quisque ac purus eu sem rutrum bibendum.
-
-% This is an example of how you would use tgrind to include an example
-% of source code; it is commented out in this template since the code
-% example file does not exist. To use it, you need to remove the '%' on the
-% beginning of the line, and insert your own information in the call.
-%
-%\tagrind[htbp]{code/pmn.s.tex}{Code sample}{opt:pmn}
-
-Pellentesque ac leo eget lorem vulputate mattis eu a nisl. Duis elit erat, consectetur vulputate ullamcorper a, finibus quis turpis. Vivamus tincidunt dui id purus bibendum malesuada. Fusce accumsan, ipsum quis feugiat sodales, enim est aliquet leo, ut ornare justo mauris quis ex. Sed eros magna, suscipit et blandit non, pretium id felis. Praesent a vehicula tortor. Donec blandit dolor a ipsum sodales, eget aliquet nisl fermentum.
-
-\subsection{Subsection with list}
-
-Ut sollicitudin, lectus eget posuere porttitor, risus dui facilisis risus, a pharetra lacus elit vel eros. Proin fermentum accumsan mauris, quis posuere nisi pharetra scelerisque. 
-\begin{enumerate}
-  \item Item 1.
-  \item Item 2.
-  \item Item 3.
-\end{enumerate}
-
-Cras nec ullamcorper mauris. Aliquam erat volutpat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Suspendisse sed dui ac mi auctor scelerisque. Etiam at semper nisi. Cras nec dolor ac purus feugiat auctor. Nunc eget pulvinar massa.
-
-% This is an example of how you would use tgrind to include an example
-% of source code; it is commented out in this template since the code
-% example file does not exist.  To use it, you need to remove the '%' on the
-% beginning of the line, and insert your own information in the call.
-%
-%\tgrind[htbp]{code/be.s.tex}{Block Exponent}{opt:be}
-
-\section{Section sample 3}
-
-Quisque sed ultrices leo. Donec vestibulum auctor nibh, at faucibus libero mollis in. Quisque massa lorem, feugiat a lectus in, lobortis volutpat lectus. Donec accumsan dui erat, eu tempor tortor facilisis sed. Nulla ullamcorper augue et sapien dapibus, quis bibendum velit porta. Nullam mattis vehicula tortor porttitor porta. Interdum et malesuada fames ac ante ipsum primis in faucibus. Praesent suscipit, lorem vel viverra rhoncus, turpis orci dignissim dui, bibendum pulvinar justo sem vel lorem. Nam porttitor mollis tristique. Aliquam rhoncus magna quis nisl varius mattis. Sed rhoncus, diam in gravida iaculis, mauris tellus imperdiet turpis, at porttitor est leo vel velit. Praesent faucibus ornare sodales. Sed eu lorem purus.  
-
-\subsection{Another subsection sample}
-
-Nullam rhoncus posuere lacus, id volutpat nisi pulvinar viverra. Quisque quis ultricies ante. Duis sollicitudin sapien nec consequat vehicula. Vestibulum convallis erat in arcu aliquam eleifend. Nunc scelerisque lorem non luctus sodales. Curabitur eleifend odio et sagittis semper. Praesent sodales, diam nec vulputate iaculis, neque leo consectetur nunc, a luctus lacus purus et dui. Sed sit amet tortor ullamcorper, malesuada libero quis, imperdiet tortor. Cras tempor blandit massa, sit amet molestie sapien tincidunt quis. Nullam hendrerit venenatis massa, sed lacinia ligula tincidunt vitae.
-
-Nam efficitur et lacus sed eleifend. Aenean quis ipsum eget leo ultrices ornare. Nullam rhoncus ante odio, at dignissim neque posuere eu. Pellentesque sodales tortor est, nec egestas sapien mollis quis. In lectus sapien, pellentesque congue erat consequat, hendrerit aliquet elit. Pellentesque eleifend purus ac diam bibendum, ac auctor ipsum posuere. Cras suscipit leo nec velit fermentum, id varius erat eleifend. Proin sagittis purus id ante lacinia, et congue eros tincidunt. Pellentesque at cursus tellus. Quisque id semper nunc. Quisque viverra a ex at ullamcorper. Morbi mollis erat at ex viverra fringilla. Proin ante dolor, dignissim sodales nisl ac, finibus egestas urna.
-
-Nulla porta urna at pulvinar consectetur. Pellentesque suscipit, neque vitae ultricies rutrum, eros tellus iaculis dui, nec pulvinar justo nibh eu urna. Ut euismod massa nisi, et bibendum risus placerat quis. Integer pretium nulla id risus lobortis laoreet. Aenean quis quam fringilla, elementum odio non, lacinia purus. Vestibulum dui sapien, mollis sit amet massa vel, egestas faucibus velit. Phasellus non justo ut ante vestibulum dictum. Nam in nibh et libero malesuada aliquet. Donec in ex in magna luctus volutpat.
-
-Sed quis dapibus libero. Curabitur id finibus nulla, sed semper felis. Proin dapibus nulla interdum, bibendum tortor et, blandit sapien. Etiam pretium tristique tortor non lacinia. Aliquam dapibus turpis lorem, sit amet porta ex dignissim vitae. In neque felis, sagittis sed ullamcorper lacinia, lobortis ut turpis. Nam quis aliquet justo. Nam eros mi, aliquam vel massa ac, ornare dignissim erat.  This is done by using some combination of
-\begin{eqnarray*}
-a_i & = & a_j + a_k \\
-a_i & = & 2a_j + a_k \\
-a_i & = & 4a_j + a_k \\
-a_i & = & 8a_j + a_k \\
-a_i & = & a_j - a_k \\
-a_i & = & a_j \ll m \mbox{shift}
-\end{eqnarray*}
-instead of the multiplication.  For example, you could use:
-\begin{eqnarray*}
-r & = & 4s + s\\
-r & = & r + r
-\end{eqnarray*}
-Or by xx:
-\begin{eqnarray*}
-t & = & 2s + s \\
-r & = & 2t + s \\
-r & = & 8r + t
-\end{eqnarray*}
-Cras pharetra ligula nec lectus bibendum, euismod mattis purus cursus. Nullam ut mi molestie purus ultricies lacinia. Phasellus sed orci ac lacus convallis vestibulum. Quisque id nulla ut ipsum finibus vehicula. Curabitur scelerisque erat lobortis, dapibus purus eget, faucibus sapien. Nam enim leo, faucibus id ante sed, fringilla luctus eros. Morbi vulputate, purus at commodo aliquet, turpis dolor sollicitudin libero, id vehicula risus dui sit amet nulla. Sed auctor efficitur urna. Praesent sagittis tellus ac velit vestibulum dignissim. Vivamus justo enim, pellentesque eu posuere id, mattis vitae felis. Aliquam id tincidunt diam. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+Given the results of these analyses, the contributions of this thesis are threefold.  First, it highlights the importance of interpreting sentence acceptability as a gradient metric and demonstrates how exhibiting such gradience is a prerequisite to attributing any KoL to a LM.  Secondly, it proposes the Acceptability Delta Criterion as a proof of concept measurement that enforces the gradience of acceptability in its evaluation of performance and adopts continuous human judgements as the ground-truth labels that LMs are expected to approximate.  Finally, it presents the LI-Adger dataset of over 4000 sentences each associated to a human ME result, and approximately 2400 unique minimal pairs, each supported by an Acceptability Delta value.  Because the sentences in the LI-Adger dataset have a fairly wide and representative coverage of the field of linguistics, and because the human data presented here is statistically powerful, reliable and has been replicated on multiple occasions, researchers will hopefully adopt this data as the bedrock analysis test set of LMs against which any and all claims about their KoL can be put to the test.

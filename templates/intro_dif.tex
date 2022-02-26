@@ -1,0 +1,84 @@
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+It seems ironic that one of the most popular areas of research in Natural Language Processing and Computational Linguistics is assessing the Knowledge of Langauge (KoL) of statistically-based Language Models (LMs).  \DIFaddbegin \DIFadd{How so?
+}\DIFaddend Progress in this area of research generally involves assuming some fundamental property or computation occurring in the Human Language Faculty, \DIFdelbegin \DIFdel{the }\DIFdelend \DIFaddbegin \DIFadd{what one might call the `` }\DIFaddend black box of \DIFdelbegin \DIFdel{Linguistics,}\DIFdelend \DIFaddbegin \DIFadd{Linguistic theory,'' %DIF > % i would use something else than "blackbox" here,
+%DIF > % such as "conventionally posed as problem to be solved at a causal remove from the level of algorithm and
+%DIF > % %% computational implementation" - but i see your point.
+}\DIFaddend and arguing that a currently poorly understood, statistical, typically connectionist model, the black box of Machine Learning (ML), also partakes in the use of that property or computation.
+%DIF > % would rewrite "partakes" here
+The issue is made \DIFdelbegin \DIFdel{no less contentious by advances and }\DIFdelend \DIFaddbegin \DIFadd{even more challenging by }\DIFaddend changes in either field, \DIFdelbegin \DIFdel{thus }\DIFdelend \DIFaddbegin \DIFadd{so }\DIFaddend changing what is assumed to be \DIFdelbegin \DIFdel{inside }\DIFdelend \DIFaddbegin \DIFadd{``inside'' }\DIFaddend the Linguistic or ML black box immediately impacts \DIFdelbegin \DIFdel{any and all }\DIFdelend claims relating the two by some \DIFdelbegin \DIFdel{abstract }\DIFdelend \DIFaddbegin \DIFadd{additional ``linking'' }\DIFaddend property, linguistic or otherwise\DIFaddbegin \DIFadd{, that is required to carry out evaluation of LMs}\DIFaddend .  If any concrete progress is to be made when it pertains to KoL in LMs, then the design of the tests we perform and their conclusions must be virtually agnostic to linguistic \DIFdelbegin \DIFdel{theory}\DIFdelend \DIFaddbegin \DIFadd{theory--which seems not only implausible, but then implies that linguistic theory has no import on the LMs themselves}\DIFaddend .
+
+Paradoxical as it may seem, this thesis takes concrete steps toward providing a test of KoL for LMs agnostic of linguistic theory
+%DIF > % i am not sure you can say you are "agnostic" about linguistic theory, because the Sprouse sentences, %%
+%DIF >  while expressing  empirical facts, are relative to particular linguistic theories.  So you need to temper this a % bit.  It's not really theory-agnostic.  People who don't believe in generative grammar won't buy it, for
+%DIF >  %% example. Though I DO like your point that DOES stand relative to generative grammar. 
+\DIFaddbegin 
+
+\DIFaddend by positing the necessary components required to design such a test.  First, we propose the LI-Adger dataset, a collection of statistically powerful and attested linguistic phenomena representative of the field of Linguistics (\DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citealp{sprouse2012assessing,sprouse2013comparison}}\hspace{0pt}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{Sprouse \& Almeida 2012; Sprouse et al. 2013}\DIFaddend ), as the theory agnostic dataset, accompanied by human acceptability judgements in the form of Magnitude Estimation (ME) data.  Altogether, the dataset has an attested maximum False Positive (Type 1 error) rate between 1-12\% and is well above the 80\% threshold for statistical power (<20\% False Negatives, or Type 2 errors) \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citep{sprouse2017design}}\hspace{0pt}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{(Sprouse \& Almeida 2017)}\DIFaddend .  The reliability of the LI-Adger dataset is such that, if \DIFaddbegin \DIFadd{the }\DIFaddend linguistic theories were somehow proven to be incorrect and reformulated, it would not be because of the data, but because of incorrect theorizing; any tractable theory of linguistics must account for the phenomena observed in the LI-Adger dataset without exception \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citep{sprouse2012assessing}}\hspace{0pt}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{(Sprouse \& Almeida, 2012)}\DIFaddend .  To complement this data, we propose the Acceptability Delta Criterion, a proof of concept metric that enforces the gradience of acceptability in its evaluation of model performance, and adopts the continuous human judgements as the ground-truth labels that LMs must approximate in order to demonstrate KoL.
+
+Our results suggest that, when acceptability is treated as a functionally categorical metric on isolated minimal pairs of sentences as it has been traditionally treated in the literature (\DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citealp{linzen2016assessing,marvin2018targeted,wilcox2018rnn,warstadt2019blimp}}\hspace{0pt}%DIFAUXCMD
+; to name a few}\DIFdelend \DIFaddbegin \DIFadd{Linzen et al. 2016; Marvin \& Linzen 2018; Wilcox et al. 2018; Warstadt \& Bowman 2020; among others}\DIFaddend ), the task of determining sentence acceptability fails to properly test for KoL.  Under this relaxed metric, the large, cased version of Bidirectional Encoder Representations from Transformers (BERT$_{\mathrm{large-cased}}$; \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citet{devlin2018bert}}\hspace{0pt}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{Devlin et al. 2018}\DIFaddend ) when fine-tuned using the Corpus of Linguistic Acceptability (CoLA; \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citet{warstadt2019neural}}\hspace{0pt}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{Warstadt \& Bowman 2018}\DIFaddend ), correctly evaluates 2213 out of 2365 ($\sim$94\%) minimal pairs in the LI-Adger dataset; that is, for those 2213 minimal pairs, BERT$_{\mathrm{large-cased}}$ gave a higher score to the sentence in the minimal pair deemed by experts to be the \textit{acceptable} one of the pair.  We will continue to refer to this metric as the BLiMP Criterion, named after the BLiMP dataset \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citep{warstadt2019blimp}}\hspace{0pt}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{(Warstadt \& Bowman 2020)}\DIFaddend .  To put BERT's performance into perspective, a trigram model using the Syntactic Log-Odds Ration (SLOR; \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citealp{pauls2012large,lau2017grammaticality}}\hspace{0pt}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{Pauls \& Klein 2012; Lau et al. 2015}\DIFaddend ) is able to correctly evaluate 1781 out of 2365 ($\sim$75\%) minimal pairs.  Considering the coverage of phenomena in the LI-Adger dataset,%DIF > % say why it is a flaw
+we consider this evidence of a theoretical flaw in the metric itself and not what the models \textit{know} about language.
+\DIFaddbegin 
+
+\DIFaddend Adopting the Acceptability Delta Criterion (with $\delta=0.5$), which enforces that models' predictions be within a set number of standard deviation units ($\delta$) from the human ME judgements, quickly changes the panorama.  BERT$_{\mathrm{large-cased}}$ fine-tuned with CoLA only correctly evaluates 726 out of 2365 ($\sim$31\%) minimal pairs, whereas the trigram model with SLOR correctly evaluates 712 out of 2365 ($\sim$30\%).  These results imply that, when it comes to tracking the \DIFaddbegin {\em \DIFaddend acceptability of sentences across minimal pairs\DIFaddbegin }\DIFaddend , the KoL encoded in BERT does not go much farther than that of an $N$-gram model.
+
+
+Here we proceed as follows. First, we attempt to replicate the linguistic analysis of BERT conducted by \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citet{warstadt2019blimp} }\hspace{0pt}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{Warstadt \& Bowman 2019 }\DIFaddend using the grammatically annotated Corpus of Linguistic Acceptability.  Over the course of this replication, we confirm evidence of underspecification in overparametrized Neural Language Models as identified by \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citet{d2020underspecification,mccoy2019berts}}\hspace{0pt}%DIFAUXCMD
+, }\DIFdelend \DIFaddbegin \DIFadd{D'Amour et al. 2020, McCoy et al. 2020, }\DIFaddend among others.  In particular, we observe the test set predictions of BERT$_{\mathrm{base-cased}}$, the smallest (i.e. least overparametrized) of the original BERT models, are extremely sensitive to the {\em order} in which the CoLA training sentences are presented, even though overall performance remained relatively unchanged.  We observed this behavior even within the same initialization of the model, where the only difference between two runs was the random seed used to shuffle the training data.  This underspecification takes the form of instability in the LI-Adger test set predictions: sentences predicted as acceptable (1) by BERT with around 90-99\% confidence flip to be predicted as unacceptable with a similar level of confidence, or vice versa.  We find that over the course of 200 different training orders, 1272 sentences, or roughly 30\% of the sentences in the LI-Adger dataset exhibit this flipping behavior.  We have affectionately named this subset of sentences the Acrobatic Sentences.
+%% so is this really replicating the results?
+
+Given the alarmingly high proportion of acrobatic sentences in the \DIFdelbegin \DIFdel{least overparametrized }\DIFdelend \DIFaddbegin \DIFadd{least-overparametrized }\DIFaddend BERT model, we find ourselves obliged to consider successful replication as achieving Matthew's Correlation Coefficient (MCC) scores on the CoLA test set that are \textit{reasonably} close to those reported by \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citet{warstadt2019blimp}}\hspace{0pt}%DIFAUXCMD
+.  }\DIFdelend \DIFaddbegin \DIFadd{Warstadt \& Bowman 2020. %DIF > % why?
+}
+
+\DIFaddend To this end, we select the BERT$_{\mathrm{large-cased}}$ model with the single best performance on the CoLA out of domain test set and further test it using the LI-Adger dataset under the BLiMP criterion.  Although we find that BERT satisfies the BLiMP criterion for roughly 94\% of the minimal pairs, the magnitude of its predictions does not track the degrees of acceptability exhibited by the gradient human judgements.  In fact, suppose we scaled BERT's predicted labels by the model's \textit{confidence}, the output of the final softmax classification head after BERT's final pooling layers, we would not lose any information.  Instead, we would know when BERT considers a sentence completely acceptable ($\sim$0.95), completely unacceptable ($\sim$ -0.95, assuming the unacceptable label is -1), and anything in between.  The delta in BERT's acceptability scores across minimal pairs using this more gradient output metric only weakly correlates with the human judgements ($\sim$0.349, $p$<0.0001).  For reference, conducting the same analysis \DIFdelbegin \DIFdel{between }\DIFdelend \DIFaddbegin \DIFadd{with %DIF > ? not between
+}\DIFaddend the SLOR scores of a trigram model trained on the British National Corpus \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citep{sprouse2018colorless} }\hspace{0pt}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{(Sprouse et al. 2018) }\DIFaddend yields almost the same Pearson's correlation coefficient ($\sim$0.333, $p$<0.0001).
+\todo[inline]{Should softmax be explained further or should I point readers to a later chapter/section?  This introduction is already VERY long.}
+
+%DIF > % well it should be self-contained.  maybe a picture of softmax?  you need to say something.
+\DIFaddbegin 
+
+
+\DIFaddend %% i wonder if one can display the tracking visually somehow...by some kind of distribution along an axis???
+%% ^^^ perhaps scatterplots, but would it not seem strange to post figures in the introduction?  This section is already much lengthier than I thought it should be.
+
+%DIF > % be careful about tense here - past vs. present.  I didn't always check.
+\DIFaddbegin 
+
+\DIFaddend The above analyses by nature \DIFdelbegin \DIFdel{warranted }\DIFdelend \DIFaddbegin \DIFadd{warrant }\DIFaddend further controls.  For one, training a linear classifier on top of BERT's embeddings very rarely \DIFdelbegin \DIFdel{yielded }\DIFdelend \DIFaddbegin \DIFadd{yields }\DIFaddend a confidence (softmax) output of less than 0.95, meaning most predictions were around either 0.99 or -0.99.  In spite of BERT's claimed KoL, expecting gradience from BERT after fine-tuning using the categorical labels from CoLA could be viewed as unfair to the model due to its lack of access to gradient data (although we do not even have access to categorically labeled raw linguistic input during language \DIFdelbegin \DIFdel{acquisition... but }\DIFdelend \DIFaddbegin \DIFadd{acquisition--but }\DIFaddend that is a separate issue altogether).  %DIF > why ?
+Additionally, we were uncertain of what information--semantic, syntactic or otherwise--might be introduced \DIFdelbegin \DIFdel{to }\DIFdelend \DIFaddbegin \DIFadd{into }\DIFaddend BERT by the CoLA training set itself, as opposed to already being present in BERT's \DIFdelbegin \DIFdel{learned }\DIFdelend \DIFaddbegin \DIFadd{pretrained }\DIFaddend representations.  Thus, we repeat the analyses on the out-of-the-box version of BERT$_{\mathrm{large- cased}}$.  We obtain \textit{pseudo-log-likelihood} (\DIFdelbegin \DIFdel{PLL}\DIFdelend \DIFaddbegin \DIFadd{PPL}\DIFaddend ) scores from BERT by performing a variant of \DIFdelbegin \DIFdel{the }\DIFdelend \DIFaddbegin \DIFadd{a }\DIFaddend Cloze test in which we sequentially mask each word in a given sentence and retrieve the probability of the originally masked token from BERT (\DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citealp{wang2019bert,shin2019effective,salazar2020} }\hspace{0pt}%DIFAUXCMD
+).}\DIFdelend \DIFaddbegin \DIFadd{Wang \& Cho 2019; Shin et al. 2019; Salazar et al. 2020).}\DIFaddend \footnote{We are fully aware that Jacob Devlin himself has said that BERT is not a language model and recommended against this sequential masked language modeling procedure (See \href{https://github.com/google-research/bert/issues/35}{the original issue on the Google Research GitHub repository}.  We point readers to \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citet{salazar2020}}\hspace{0pt}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{Salazar et al. 2020}\DIFaddend , who report BERT beats the state-of-the-art GPT-2 on BLiMP \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+\citep{warstadt2019blimp} }\hspace{0pt}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{(Warstadt \& Bowman 2020) }\DIFaddend when using PPL scores. %DIF > % So do you think you are safe here?
+}  In this task, the total log-likelihood of a sentence $s_i$ of length $n$ is the sum total of the log-likelihood score of each of its tokens $[w_0,...,w_n]$, which can be expressed as:
+\begin{equation}
+    \mathrm{PPL(s_i)} = \sum^{n}_{j=0} \mathrm{log}(P(w_j|w_0,...,w_{j-1},w_{j+1},...w_n))
+\end{equation}
+We find that this objective only slightly improves performance under the Acceptability Delta Criterion: scoring 890 out of 2365 ($\sim$38\%) minimal pairs with $\delta = 0.5$, as well as slightly improving the correlation in acceptability score delta with human judgement deltas across minimal pairs ($\sim$0.384, $p$<0.0001).  
+
+Given the results of these analyses, \DIFdelbegin \DIFdel{our contributions with }\DIFdelend \DIFaddbegin \DIFadd{the contributions of }\DIFaddend this thesis are threefold.  \DIFdelbegin \DIFdel{We first highlight }\DIFdelend \DIFaddbegin \DIFadd{First, it highlights }\DIFaddend the importance of interpreting sentence acceptability as a gradient metric and demonstrate how exhibiting such gradience is a prerequisite to attributing any KoL to a LM.  Secondly, \DIFdelbegin \DIFdel{we propose }\DIFdelend \DIFaddbegin \DIFadd{it proposes }\DIFaddend the Acceptability Delta metric as a proof of concept measurement that begins to enforce the gradience of acceptability in its evaluation of performance and adopts continuous human judgements as the ground-truth labels that LMs are expected to approximate.  Finally, \DIFdelbegin \DIFdel{we present }\DIFdelend \DIFaddbegin \DIFadd{it presents }\DIFaddend the LI-Adger dataset of over 4000 sentences each associated to a human ME result, and approximately 2400 unique minimal pairs, each supported by an Acceptability Delta value.  Because the sentences in the LI-Adger dataset have a fairly wide and representative coverage of the field of syntax, and because the human data presented here is statistically powerful, reliable and has been replicated on multiple occasions, \DIFdelbegin \DIFdel{we hope that researchers }\DIFdelend \DIFaddbegin \DIFadd{it is hoped that that future research }\DIFaddend will adopt this data as the bedrock analysis test set of LMs against which any and all claims about their KoL can be put to the test.
